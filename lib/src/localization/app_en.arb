@@ -1,0 +1,6 @@
+{
+  "appTitle": "rank_hub",
+  "@appTitle": {
+    "description": "The title of the application"
+  }
+}
