@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:rank_hub/src/model/maimai/song_score.dart';
-import 'package:rank_hub/src/services/lx_api_services.dart';
-import 'package:rank_hub/src/widget/score_card/mai_score_card.dart';
+import 'package:rank_hub/src/provider/lx_mai_provider.dart';
+import 'package:rank_hub/src/view/maimai/lx_mai_record_card.dart';
 
-class SongCardList extends StatefulWidget {
+class LxMaiScoreList extends StatefulWidget {
   final String searchQuery;
   final ScrollController scrollController;
 
-  const SongCardList(
+  const LxMaiScoreList(
       {super.key, required this.searchQuery, required this.scrollController});
 
   @override
-  State createState() => _SongCardListState();
+  State createState() => _LxMaiScoreListState();
 }
 
-class _SongCardListState extends State<SongCardList> {
+class _LxMaiScoreListState extends State<LxMaiScoreList> {
   List<SongScore> scores = [];
   bool isLoading = true;
   bool hasError = false;
@@ -50,7 +50,7 @@ class _SongCardListState extends State<SongCardList> {
       isLoading = true;
     }
     try {
-      final fetchedSongs = await LxApiService().getRecordList(forceRefresh: froce);
+      final fetchedSongs = await LxMaiProvider(context: context).lxApiService.getRecordList(forceRefresh: froce);
       setState(() {
         scores = fetchedSongs;
         isLoading = false;
@@ -114,8 +114,8 @@ class _SongCardListState extends State<SongCardList> {
                         controller: widget.scrollController,
                         itemCount: filteredScores.length,
                         itemBuilder: (context, index) {
-                          return LxMaiScoreCard(
-                              scoreData: filteredScores[index]);
+                          return LxMaiRecordCard(
+                              recordData: filteredScores[index]);
                         },
                       ),
                     ),

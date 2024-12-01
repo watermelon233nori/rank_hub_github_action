@@ -1,137 +1,123 @@
 import 'package:flutter/material.dart';
-import 'package:chart_sparkline/chart_sparkline.dart';
 
 class MaimaiCn extends StatelessWidget {
-  const MaimaiCn({super.key});
+  final Map<String, dynamic> data = {
+    "name": "ＱＩＡＮＭＯ",
+    "rating": 14469,
+    "friend_code": 305600065184384,
+    "trophy": {
+      "id": 358595,
+      "name": "――――　　UNKNOWN　　――――　　UNKNOWN　　――――　　UNKNOWN",
+      "color": "Normal"
+    },
+    "course_rank": 7,
+    "class_rank": 1,
+    "star": 254,
+    "icon": {"id": 355501, "name": "御伽野ひめ", "genre": "MEGAREXちほー"},
+    "name_plate": {"id": 406102, "name": "東北ずん子ちほー その2", "genre": "イベントちほー"},
+    "frame": {"id": 406102, "name": "東北ずん子ちほー その2", "genre": "イベントちほー"},
+    "upload_time": "2024-11-25T02:12:14Z"
+  };
+
+  MaimaiCn({super.key});
 
   @override
   Widget build(BuildContext context) {
-    var data = [
-      0.0,
-      7.0,
-      13.0,
-      2.0,
-      0.0,
-      0.0,
-      0.0,
-      4.0,
-      20.0,
-      9.0,
-      1.0,
-      5.0,
-      2.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      7.0,
-      10.0,
-      3.0
-    ];
+    final String iconUrl =
+        "https://assets2.lxns.net/maimai/icon/${data['icon']['id']}.png";
+    final String courseRankUrl =
+        "https://maimai.lxns.net/assets/maimai/course_rank/${data['course_rank']}.webp";
+    final String classRankUrl =
+        "https://maimai.lxns.net/assets/maimai/class_rank/${data['class_rank']}.webp";
+    final String starIconUrl =
+        "https://maimai.lxns.net/assets/maimai/icon_star.webp";
+
     return Card(
-      margin: const EdgeInsets.only(left: 32, right: 32, top: 16, bottom: 16),
-      child: Container(
-          height: 200,
-          width: double.infinity,
-          child: Stack(
-            children: [
-              // 背景图片
-              Container(
-                decoration: BoxDecoration(
-                  image: const DecorationImage(
-                    image: AssetImage('assets/images/maimai_bud.jpg'), // 替换为你的图片路径
-                    fit: BoxFit.cover,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                ),
+      margin: EdgeInsets.all(32),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // User icon
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                iconUrl,
+                width: 56,
+                height: 56,
+                fit: BoxFit.cover,
               ),
-              // 渐变层
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [
-                      Colors.black.withOpacity(1), // 从黑色开始
-                      Colors.black.withOpacity(0.7), // 到透明
+            ),
+            const SizedBox(width: 12),
+            // User details
+            Expanded(
+              flex: 1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Name and rating
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        data['name'],
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.yellow,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
+                        child: Text(
+                          "DX RATING: ${data['rating']}",
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text('QIANMO',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    letterSpacing: 4,
-                                    fontFamily:
-                                        "monospace")), // Adds a title to the card
-                            Spacer(),
-                            Expanded(
-                                child: Chip(
-                              side: BorderSide(width: 0),
-                              label: Text('十段', style: TextStyle(color: Colors.white)),
-                              backgroundColor:
-                                  Color.fromARGB(255, 190, 108, 14),
-                            )),
-                            Expanded(
-                                child: Chip(
-                              side: BorderSide(width: 0),
-                              label: Text('B3', style: TextStyle(color: Colors.white)),
-                              backgroundColor: Color.fromARGB(255, 17, 148, 67),
-                            ))
-                          ],
-                        ),
-                        Text('舞萌 DX 2024',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontFamily:
-                                    "monospace")) // Adds a subtitle to the card
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Text('DX\nRating',
-                            style:
-                                TextStyle(fontSize: 12, color: Colors.white)),
-                        const SizedBox(width: 4),
-                        const Text('14459',
-                            style: TextStyle(
-                                fontSize: 24,
-                                color: Color.fromARGB(255, 205, 222, 17))),
-                        const Spacer(),
-                        Sparkline(
-                          fallbackHeight: 30,
-                          fallbackWidth: 150,
-                          data: data,
-                          lineWidth: 2.0,
-                          lineGradient: const LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Color.fromARGB(255, 186, 87, 247),
-                              Color.fromARGB(255, 200, 140, 209)
-                            ],
+                  const SizedBox(height: 4),
+                  // Ranks and stars
+                  Row(
+                    children: [
+                      // Course rank
+                      Image.network(courseRankUrl, width: 60, height: 60),
+                      const SizedBox(width: 8),
+                      // Class rank
+                      Image.network(classRankUrl, width: 60, height: 60),
+                      const SizedBox(width: 8),
+                      // Star
+                      Row(
+                        children: [
+                          Image.network(starIconUrl, width: 24, height: 24),
+                          const SizedBox(width: 4),
+                          Text(
+                            "×${data['star']}",
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 16),
                           ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          )),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

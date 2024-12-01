@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rank_hub/src/pages/data_src_page.dart';
-import 'package:rank_hub/src/pages/overview_page.dart';
-import 'package:rank_hub/src/pages/mai_rank_page.dart';
-import 'package:rank_hub/src/pages/settings_page.dart';
+import 'package:rank_hub/src/pages/rank_page.dart';
+import 'package:rank_hub/src/pages/slider_overview_page.dart';
 import 'package:rank_hub/src/pages/wiki_page.dart';
+import 'package:rank_hub/src/view/settings_view.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -18,9 +18,9 @@ class _MainPageState extends State<MainPage> {
   late final PageController _pageController; // 延迟初始化 PageController
 
   // 页面列表
-  final List<Widget> _pages = const [
-    OverviewPage(),
-    MaiRankPage(),
+  final List<Widget> _pages = [
+    ImageSliderPage(),
+    RankPage(),
     WikiPage(),
     DataSrcPage(),
     SettingsPage(),

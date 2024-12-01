@@ -2,10 +2,13 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
 import 'package:rank_hub/src/model/maimai/song_info.dart';
+import 'package:rank_hub/src/provider/lx_mai_provider.dart';
 import 'package:rank_hub/src/services/lx_api_services.dart';
+import 'package:rank_hub/src/view/maimai/lx_level_view.dart';
 import 'package:rank_hub/src/widget/difficulty_card/mai_difficulty_card.dart';
 import 'package:rank_hub/src/widget/song_info_list/mai_song_info_list.dart';
 
@@ -24,9 +27,14 @@ class _SongDetailScreenState extends State<SongDetailScreen>
   late ScrollController _scrollController;
   late AudioPlayer _audioPlayer;
   late AnimationController _iconController;
+  late SongInfo _songData = widget.song;
+  late StreamSubscription sub1;
+  late StreamSubscription sub2;
+  late StreamSubscription sub3;
 
   bool _isPlaying = false;
   bool _isLoading = false;
+  bool _isLoaded = false;
   double _currentPosition = 0.0;
   double _totalDuration = 0.0;
   String _version = '';
@@ -55,20 +63,21 @@ class _SongDetailScreenState extends State<SongDetailScreen>
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    _audioPlayer.onPositionChanged.listen((Duration p) {
+    sub1 =_audioPlayer.onPositionChanged.listen((Duration p) {
       setState(() {
         _currentPosition = p.inSeconds.toDouble();
       });
     });
-    _audioPlayer.onDurationChanged.listen((Duration d) {
+    sub2 = _audioPlayer.onDurationChanged.listen((Duration d) {
       setState(() {
         _totalDuration = d.inSeconds.toDouble();
       });
     });
-    _audioPlayer.onPlayerStateChanged.listen((state) {
+    sub3 = _audioPlayer.onPlayerStateChanged.listen((state) {
       if (state == PlayerState.playing) {
         setState(() {
           _isLoading = false;
+          _isPlaying = true;
         });
         _iconController.forward();
       } else {
@@ -81,10 +90,17 @@ class _SongDetailScreenState extends State<SongDetailScreen>
       }
     });
     getVersion();
+    LxApiService.getSongDataById(widget.song.id).then((data) {
+      _songData = data;
+    });
   }
 
   @override
   void dispose() {
+    sub1.cancel();
+    sub2.cancel();
+    sub3.cancel();
+    _audioPlayer.release();
     _tabController.dispose();
     _scrollController.dispose();
     _audioPlayer.dispose();
@@ -93,7 +109,9 @@ class _SongDetailScreenState extends State<SongDetailScreen>
   }
 
   Future<void> getVersion() async {
-    var a = await LxApiService().getTitleByVerison(widget.song.version);
+    var a = await LxMaiProvider(context: context)
+        .lxApiService
+        .getTitleByVersion(widget.song.version);
     setState(() {
       _version = a;
     });
@@ -102,14 +120,17 @@ class _SongDetailScreenState extends State<SongDetailScreen>
   void _playPauseAudio() async {
     if (_isPlaying) {
       await _audioPlayer.pause();
-    } else {
+    } else if (!_isLoaded) {
       setState(() {
         _isLoading = true;
       });
 
       try {
         await _audioPlayer.play(UrlSource(
-              'https://assets2.lxns.net/maimai/music/${widget.song.id}.mp3'));
+            'https://assets2.lxns.net/maimai/music/${widget.song.id}.mp3'));
+        setState(() {
+          _isLoaded = true;
+        });
       } catch (e) {
         if (e is TimeoutException) {
           _showSnackbar('加载超时，请重试！');
@@ -122,16 +143,18 @@ class _SongDetailScreenState extends State<SongDetailScreen>
         });
         return;
       }
+    } else {
+      _audioPlayer.resume();
     }
-    setState(() {
-      _isPlaying = !_isPlaying;
-    });
   }
 
   void _showSnackbar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: TextStyle(color: Colors.white),),
+        content: Text(
+          message,
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.red,
         duration: const Duration(seconds: 2),
       ),
@@ -177,6 +200,7 @@ class _SongDetailScreenState extends State<SongDetailScreen>
             SliverAppBar(
               stretch: true,
               forceElevated: true,
+              centerTitle: false,
               title: Opacity(
                 opacity: _titleOpacity,
                 child: Column(
@@ -307,7 +331,7 @@ class _SongDetailScreenState extends State<SongDetailScreen>
                                 ),
                               ),
                               // 圆形进度指示器
-                              if (_isPlaying || _isLoading)
+                              if (_isLoaded || _isLoading)
                                 IgnorePointer(
                                   ignoring: !_isLoading,
                                   child: SizedBox(
@@ -352,17 +376,52 @@ class _SongDetailScreenState extends State<SongDetailScreen>
               physics: ScrollPhysics(),
               child: Column(
                 children: [
-                  for (int i = 0;
-                      i < widget.song.difficulties.standard.length;
-                      i++)
-                    MaiDifficultyCard(
-                      songDifficulty: widget.song.difficulties.standard[i],
-                      songId: widget.song.id,
+                  const SizedBox(height: 32),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "点击卡片即可查看详细信息",
+                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  for (int i = widget.song.difficulties.standard.length - 1;
+                      i >= 0;
+                      i --)
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                            builder: (context) => LxMaiLevelView(
+                                difficulty: _songData.difficulties.standard[i],
+                                songName: _songData.title),
+                          ),
+                        );
+                      },
+                      child: MaiDifficultyCard(
+                        songDifficulty: _songData.difficulties.standard[i],
+                        songId: widget.song.id,
+                      ),
                     ),
-                  for (int i = 0; i < widget.song.difficulties.dx.length; i++)
-                    MaiDifficultyCard(
-                      songDifficulty: widget.song.difficulties.dx[i],
-                      songId: widget.song.id,
+                  for (int i = widget.song.difficulties.dx.length - 1; i >= 0; i --)
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                            builder: (context) => LxMaiLevelView(
+                                difficulty: _songData.difficulties.dx[i],
+                                songName: _songData.title),
+                          ),
+                        );
+                      },
+                      child: MaiDifficultyCard(
+                        songDifficulty: _songData.difficulties.dx[i],
+                        songId: widget.song.id,
+                      ),
                     ),
                 ],
               ),

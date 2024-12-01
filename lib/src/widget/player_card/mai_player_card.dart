@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:rank_hub/src/services/lx_api_services.dart'; // 引入服务类
+import 'package:rank_hub/src/provider/lx_mai_provider.dart';
 import 'package:rank_hub/src/model/maimai/player_data.dart'; // 引入玩家数据模型
 
 class MaiPlayerCard extends StatefulWidget {
@@ -17,7 +17,7 @@ class _MaiPlayerCardState extends State<MaiPlayerCard> {
   void initState() {
     super.initState();
     // 使用 LxApiServices 的 getAllPlayerData 获取玩家数据
-    _playerDataFuture = LxApiService().getAllPlayerData();
+    _playerDataFuture = LxMaiProvider(context: context).lxApiService.getAllPlayerData();
   }
 
   @override
@@ -79,8 +79,8 @@ class _MaiPlayerCardState extends State<MaiPlayerCard> {
                         child: CachedNetworkImage(
                           imageUrl:
                               'https://assets.lxns.net/maimai/icon/${player.icon?.id}.png',
-                          width: 60,
-                          height: 60,
+                          width: 56,
+                          height: 56,
                           fit: BoxFit.cover,
                           fadeInDuration: const Duration(milliseconds: 500),
                           placeholder: (context, url) => Transform.scale(

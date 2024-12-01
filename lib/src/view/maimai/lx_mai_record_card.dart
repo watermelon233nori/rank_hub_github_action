@@ -1,11 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:rank_hub/src/model/maimai/song_score.dart';
+import 'package:rank_hub/src/widget/record_card.dart';
 
-class LxMaiScoreCard extends StatelessWidget {
-  final SongScore scoreData;
+class LxMaiRecordCard extends RecordCard<SongScore> {
 
-  const LxMaiScoreCard({super.key, required this.scoreData});
+  const LxMaiRecordCard({super.key, required super.recordData});
 
   // Method to get level index color based on the level index
   Color _getLevelColor(int levelIndex) {
@@ -94,7 +94,7 @@ class LxMaiScoreCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // Split achievements into integer and decimal parts
     final achievementsParts =
-        scoreData.achievements.toStringAsFixed(4).split('.');
+        recordData.achievements.toStringAsFixed(4).split('.');
     final intPart = achievementsParts[0];
     final decimalPart = achievementsParts[1];
 
@@ -107,10 +107,10 @@ class LxMaiScoreCard extends StatelessWidget {
       "Re:MASTER", // 4
     ];
 
-    final levelPrefix = levelPrefixes[scoreData.levelIndex];
+    final levelPrefix = levelPrefixes[recordData.levelIndex];
 
     final imageUrl =
-        "https://assets2.lxns.net/maimai/jacket/${scoreData.id}.png";
+        "https://assets2.lxns.net/maimai/jacket/${recordData.id}.png";
 
     return Card(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -132,7 +132,7 @@ class LxMaiScoreCard extends StatelessWidget {
                     child: CachedNetworkImage(
                       imageUrl: imageUrl,
                       fit: BoxFit.cover,
-                      fadeInDuration: Duration(
+                      fadeInDuration: const Duration(
                           milliseconds: 500), // Adjust duration as needed
                     )),
               ),
@@ -146,7 +146,7 @@ class LxMaiScoreCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          scoreData.songName!,
+                          recordData.songName!,
                           style: Theme.of(context).textTheme.titleMedium,
                           overflow: TextOverflow
                               .ellipsis, // Ensures long song names don't overflow
@@ -159,23 +159,23 @@ class LxMaiScoreCard extends StatelessWidget {
                   Row(
                     children: [
                       Chip(
-                        side: BorderSide(width: 0),
+                        side: const BorderSide(width: 0),
                         label: Text(
-                          "$levelPrefix ${scoreData.level}",
+                          "$levelPrefix ${recordData.level}",
                           style: const TextStyle(color: Colors.white),
                         ),
-                        backgroundColor: _getLevelColor(scoreData.levelIndex),
+                        backgroundColor: _getLevelColor(recordData.levelIndex),
                       ),
                       const SizedBox(width: 8),
                       // Song Name
                       // Type Chip (Standard or DX)
                       Chip(
-                        side: BorderSide(width: 0),
+                        side: const BorderSide(width: 0),
                         label: Text(
-                          scoreData.type == 'standard' ? '标准' : 'DX',
+                          recordData.type == 'standard' ? '标准' : 'DX',
                           style: const TextStyle(color: Colors.white),
                         ),
-                        backgroundColor: _getTypeColor(scoreData.type),
+                        backgroundColor: _getTypeColor(recordData.type),
                       ),
                     ],
                   ),
@@ -201,35 +201,34 @@ class LxMaiScoreCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      Spacer(),
-                      if (_getFcText(scoreData.fc).isNotEmpty)
+                      const Spacer(),
+                      if (_getFcText(recordData.fc).isNotEmpty)
                         Chip(
-                          side: BorderSide(width: 0),
+                          side: const BorderSide(width: 0),
                           label: Text(
-                            _getFcText(scoreData.fc),
+                            _getFcText(recordData.fc),
                             style: const TextStyle(color: Colors.white),
                           ),
-                          backgroundColor: _getFcColor(scoreData.fc),
+                          backgroundColor: _getFcColor(recordData.fc),
                         ),
-                      SizedBox(width: 8),
-                      if (_getFsText(scoreData.fs).isNotEmpty)
+                      const SizedBox(width: 8),
+                      if (_getFsText(recordData.fs).isNotEmpty)
                         Chip(
-                          side: BorderSide(width: 0),
+                          side: const BorderSide(width: 0),
                           label: Text(
-                            _getFsText(scoreData.fs),
+                            _getFsText(recordData.fs),
                             style: const TextStyle(color: Colors.white),
                           ),
-                          backgroundColor: _getFsColor(scoreData.fs),
+                          backgroundColor: _getFsColor(recordData.fs),
                         ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  // Other details: Score and Rating
+                  const Spacer(),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("DX Score: ${scoreData.dxScore}"),
-                      Text("Rating: ${scoreData.dxRating!.toStringAsFixed(0)}"),
+                      Text("DX Score: ${recordData.dxScore}"),
+                      Text("Rating: ${recordData.dxRating!.toStringAsFixed(0)}"),
                     ],
                   ),
                 ],

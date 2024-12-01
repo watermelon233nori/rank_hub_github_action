@@ -42,6 +42,7 @@ class _OverviewPageState extends State<OverviewPage> {
                 snap: false,
                 leadingWidth: 0,
                 titleSpacing: 0,
+                centerTitle: false,
                 actions: [
                   IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
                   const SizedBox(width: 8),
@@ -50,14 +51,15 @@ class _OverviewPageState extends State<OverviewPage> {
                   const SizedBox(width: 8),
                 ],
                 flexibleSpace: const FlexibleSpaceBar(
+                  centerTitle: false,
                   titlePadding: EdgeInsets.all(24),
-                  title: Text('概览'),
+                  title: Text('概览', style: TextStyle(fontWeight: FontWeight.bold),),
                   collapseMode: CollapseMode.pin,
                 ),
               ),
               SliverFixedExtentList(
                   delegate: SliverChildListDelegate([
-                    const MaimaiCn(),
+                    MaimaiCn(),
                     const ChuniCn(),
                     const Phigros(),
                     const Arcaea()

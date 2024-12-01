@@ -2,22 +2,17 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rank_hub/src/model/maimai/song_info.dart';
-import 'package:rank_hub/src/pages/mai/song_detail_screen.dart';
+import 'package:rank_hub/src/provider/lx_mai_provider.dart';
 
-class MaiSongList extends StatelessWidget {
-  final List<SongInfo> songs;
-  final ScrollController controller;
+class LxMaiSongCard extends StatelessWidget {
+  final LxMaiProvider provider;
+  final SongInfo songData;
 
-  const MaiSongList({super.key, required this.songs, required this.controller});
+  const LxMaiSongCard({super.key, required this.songData, required this.provider});
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      controller: controller,
-      itemCount: songs.length,
-      itemBuilder: (context, index) {
-        final song = songs[index];
-        return Card(
+    return Card(
           margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
           child: ListTile(
             contentPadding: const EdgeInsets.all(10),
@@ -25,9 +20,9 @@ class MaiSongList extends StatelessWidget {
               borderRadius: BorderRadius.circular(8), // Rounded corners
               child: CachedNetworkImage(
                 imageUrl:
-                    'https://assets2.lxns.net/maimai/jacket/${song.id}.png',
-                width: 60,
-                height: 60,
+                    'https://assets2.lxns.net/maimai/jacket/${songData.id}.png',
+                width: 56,
+                height: 56,
                 fit: BoxFit.cover,
                 fadeInDuration:
                     const Duration(milliseconds: 500), // Fade-in duration
@@ -39,19 +34,17 @@ class MaiSongList extends StatelessWidget {
                     const Icon(Icons.image_not_supported),
               ),
             ),
-            title: Text(song.title),
-            subtitle: Text(song.artist),
+            title: Text(songData.title),
+            subtitle: Text(songData.artist),
             onTap: () {
               Navigator.push(
                 context,
                 CupertinoPageRoute(
-                  builder: (context) => SongDetailScreen(song: song),
+                  builder: (context) => provider.buildSongDetailScreen(songData),
                 ),
               );
             },
           ),
         );
-      },
-    );
   }
 }

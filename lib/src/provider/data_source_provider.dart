@@ -2,22 +2,22 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 
-abstract class AbstractProvider {
+abstract class DataSourceProvider<R, P, S> {
   Widget buildOverviewCard();
 
-  Widget buildRecordCard();
+  Widget buildRecordCard(R recordData);
 
   Widget buildRecordList();
 
-  Widget buildSongCard();
+  Widget buildSongCard(S songData);
   
   Widget buildSongList();
 
   Widget buildRankedRecordList();
 
-  Widget buildSongDetailScreen();
+  Widget buildSongDetailScreen(S songData);
 
-  Widget buildPlayerDetailScreen();
+  Widget buildPlayerDetailScreen(P playerData);
 
   Widget buildAddPlayerScreen();
   
@@ -29,17 +29,19 @@ abstract class AbstractProvider {
 
   String getProviderGameName();
 
-  Future<List<dynamic>> getAllSongs();
+  Future<List<S>> getAllSongs({bool forceRefresh = false});
 
-  Future<dynamic> getPlayerDetail();
+  Future<List<S>> searchSongs(String query);
 
-  Future<dynamic> getSongDetail();
+  Future<P> getPlayerDetail();
 
-  Future<List<dynamic>> getRecords();
+  Future<S> getSongDetail();
 
-  Future<Map<String,List<dynamic>>> getRankedRecords();
+  Future<List<R>> getRecords({bool forceRefresh = false});
 
-  Future<void> addPlayer();
+  Future<Map<String,List<R>>> getRankedRecords();
+
+  Future<P> addPlayer(String? token);
 
   Future<void> deletePlayer();
 

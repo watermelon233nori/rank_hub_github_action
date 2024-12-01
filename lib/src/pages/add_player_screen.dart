@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:rank_hub/src/pages/add_lx_mai_screen.dart';
+import 'package:rank_hub/src/provider/lx_mai_provider.dart';
 
 class AddPlayerScreen extends StatefulWidget {
   const AddPlayerScreen({super.key});
@@ -38,7 +39,7 @@ class _AddPlayerScreenState extends State<AddPlayerScreen> {
                 Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AddLxMaiScreen(),
+                  builder: (context) => AddLxMaiScreen(provider: LxMaiProvider(context: context)),
                 ),
               );
               },

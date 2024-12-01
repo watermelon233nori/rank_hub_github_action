@@ -4,16 +4,16 @@ import 'package:hive/hive.dart';
 class LxCommonUtils {
   static const baseUrl = 'https://maimai.lxns.net/api/v0';
 
-  final Dio _dio = Dio();
+  static final Dio _dio = Dio();
 
   /// 验证缓存是否有效
-  bool isCacheValid(DateTime? lastCacheTime, Duration duration) {
+  static bool isCacheValid(DateTime? lastCacheTime, Duration duration) {
     return lastCacheTime != null &&
         DateTime.now().difference(lastCacheTime) < duration;
   }
 
   /// 处理网络请求并返回数据
-  Future<dynamic> fetchData(
+  static Future<dynamic> fetchData(
     String endpoint, {
     Map<String, dynamic>? queryParameters,
     String? token,
@@ -42,7 +42,7 @@ class LxCommonUtils {
   }
 
   /// 持久化数据到 Hive
-  Future<void> saveToHive<T>(
+  static Future<void> saveToHive<T>(
       Box<T> box, List<T> data, dynamic Function(T) keyMapper) async {
     await box.clear();
     for (var item in data) {

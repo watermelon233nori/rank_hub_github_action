@@ -17,6 +17,7 @@ class _DataSrcPageState extends State<DataSrcPage> {
         length: 2,
         child: Scaffold(
           appBar: AppBar(
+            centerTitle: false,
             title: Text('数据源'),
             automaticallyImplyLeading: false,
             actions: [IconButton(onPressed: () {}, icon: Icon(Icons.sync))],

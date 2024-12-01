@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rank_hub/src/model/maimai/song_difficulty.dart';
 import 'package:rank_hub/src/model/maimai/song_score.dart';
-import 'package:rank_hub/src/services/lx_api_services.dart';
+import 'package:rank_hub/src/provider/lx_mai_provider.dart';
 
 class MaiDifficultyCard extends StatefulWidget {
   final SongDifficulty songDifficulty;
@@ -26,19 +26,22 @@ class _MaiDifficultyCardState extends State<MaiDifficultyCard> {
   }
 
   Future<void> getVersion() async {
-    var a =
-        await LxApiService().getTitleByVerison(widget.songDifficulty.version);
+    var a = await LxMaiProvider(context: context)
+        .lxApiService
+        .getTitleByVersion(widget.songDifficulty.version);
     setState(() {
       version = a;
     });
   }
 
   Future<void> getSocre() async {
-    var a = await LxApiService()
-        .getRecordById('${widget.songId}_${widget.songDifficulty.difficulty}');
-    setState(() {
-      songScore = a;
-    });
+    try {
+      var a = await LxMaiProvider(context: context).lxApiService.getRecordById(
+          '${widget.songId}_${widget.songDifficulty.type}_${widget.songDifficulty.difficulty}');
+      setState(() {
+        songScore = a;
+      });
+    } catch (_) {}
   }
 
   Color _getCardBgColor() {
