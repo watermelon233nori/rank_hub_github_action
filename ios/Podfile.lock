@@ -1,10 +1,47 @@
 PODS:
   - audioplayers_darwin (0.0.1):
     - Flutter
+  - camera_avfoundation (0.0.1):
+    - Flutter
+  - DartCvIOS (4.10.0.5):
+    - DartCvIOS/calib3d (= 4.10.0.5)
+    - DartCvIOS/contrib (= 4.10.0.5)
+    - DartCvIOS/core (= 4.10.0.5)
+    - DartCvIOS/features2d (= 4.10.0.5)
+    - DartCvIOS/imgproc (= 4.10.0.5)
+    - DartCvIOS/objdetect (= 4.10.0.5)
+    - DartCvIOS/photo (= 4.10.0.5)
+    - DartCvIOS/stitching (= 4.10.0.5)
+    - DartCvIOS/video (= 4.10.0.5)
+  - DartCvIOS/calib3d (4.10.0.5):
+    - DartCvIOS/core
+  - DartCvIOS/contrib (4.10.0.5):
+    - DartCvIOS/core
+  - DartCvIOS/core (4.10.0.5)
+  - DartCvIOS/dnn (4.10.0.5):
+    - DartCvIOS/core
+  - DartCvIOS/features2d (4.10.0.5):
+    - DartCvIOS/core
+  - DartCvIOS/imgproc (4.10.0.5):
+    - DartCvIOS/core
+  - DartCvIOS/objdetect (4.10.0.5):
+    - DartCvIOS/core
+  - DartCvIOS/photo (4.10.0.5):
+    - DartCvIOS/core
+  - DartCvIOS/stitching (4.10.0.5):
+    - DartCvIOS/core
+  - DartCvIOS/video (4.10.0.5):
+    - DartCvIOS/core
   - Flutter (1.0.0)
   - flutter_secure_storage (6.0.0):
     - Flutter
   - image_gallery_saver (2.0.2):
+    - Flutter
+  - image_picker_ios (0.0.1):
+    - Flutter
+  - opencv_core (0.0.1):
+    - DartCvIOS (= 4.10.0.5)
+    - DartCvIOS/dnn (= 4.10.0.5)
     - Flutter
   - path_provider_foundation (0.0.1):
     - Flutter
@@ -20,23 +57,36 @@ PODS:
 
 DEPENDENCIES:
   - audioplayers_darwin (from `.symlinks/plugins/audioplayers_darwin/ios`)
+  - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - Flutter (from `Flutter`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - image_gallery_saver (from `.symlinks/plugins/image_gallery_saver/ios`)
+  - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
+  - opencv_core (from `.symlinks/plugins/opencv_core/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
 
+SPEC REPOS:
+  trunk:
+    - DartCvIOS
+
 EXTERNAL SOURCES:
   audioplayers_darwin:
     :path: ".symlinks/plugins/audioplayers_darwin/ios"
+  camera_avfoundation:
+    :path: ".symlinks/plugins/camera_avfoundation/ios"
   Flutter:
     :path: Flutter
   flutter_secure_storage:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
   image_gallery_saver:
     :path: ".symlinks/plugins/image_gallery_saver/ios"
+  image_picker_ios:
+    :path: ".symlinks/plugins/image_picker_ios/ios"
+  opencv_core:
+    :path: ".symlinks/plugins/opencv_core/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
@@ -48,9 +98,13 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   audioplayers_darwin: 877d9a4d06331c5c374595e46e16453ac7eafa40
+  camera_avfoundation: dd002b0330f4981e1bbcb46ae9b62829237459a4
+  DartCvIOS: 8b1a5ef6cae756d046a22269d12bde7ccd8829c2
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_secure_storage: d33dac7ae2ea08509be337e775f6b59f1ff45f12
   image_gallery_saver: cb43cc43141711190510e92c460eb1655cd343cb
+  image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
+  opencv_core: aea52cd232e2d6d136d0628e45050196100d1a1c
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78

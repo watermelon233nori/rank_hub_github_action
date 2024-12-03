@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
+import 'package:rank_hub/src/model/maimai/mai_cover_feature.dart';
+import 'package:rank_hub/src/pages/mai_cover_recognition_page.dart';
+import 'package:rank_hub/src/pages/mai_cover_recognition_setup.dart';
 import 'package:rank_hub/src/provider/lx_mai_provider.dart';
 import 'package:rank_hub/src/view/maimai/lx_song_list.dart';
 import 'package:rank_hub/src/viewmodel/maimai/lx_wiki_page_vm.dart';
@@ -10,7 +14,9 @@ class WikiPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (ctx) => LxMaiWikiPageViewModel(lxMaiProvider: LxMaiProvider(context: ctx))..fetchSongs(),
+      create: (ctx) =>
+          LxMaiWikiPageViewModel(lxMaiProvider: LxMaiProvider(context: ctx))
+            ..fetchSongs(),
       child: Consumer<LxMaiWikiPageViewModel>(
         builder: (context, viewModel, child) {
           return Scaffold(
@@ -69,20 +75,41 @@ class WikiPage extends StatelessWidget {
                         ),
                       ),
             floatingActionButton: FloatingActionButton(
-                onPressed: () {},
-                tooltip: '高级筛选',
-                elevation: viewModel.isVisible ? 0.0 : null,
-                child: const Icon(Icons.center_focus_weak),
-              ),
-              floatingActionButtonLocation: viewModel.isVisible
-                  ? FloatingActionButtonLocation.endContained
-                  : FloatingActionButtonLocation.endFloat,
-              bottomNavigationBar: _SongFliterBar(
-                isElevated: true,
-                isVisible: viewModel.isVisible,
-                searchController: viewModel.searchController,
-                focusNode: viewModel.focusNode,
-              ),
+              onPressed: () async {
+                final box = await Hive.openLazyBox<MaiCoverFeature>(
+                    'mai_cn_cover_features');
+                if (box.isNotEmpty) {
+                  await box.close();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        fullscreenDialog: true,
+                        builder: (context) => const MaiCoverRecognitionPage()),
+                  );
+                  return;
+                }
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      fullscreenDialog: true,
+                      builder: (context) {
+                        return const MaiCoverRecognitionSetup();
+                      }),
+                );
+              },
+              tooltip: '曲绘识别',
+              elevation: viewModel.isVisible ? 0.0 : null,
+              child: const Icon(Icons.center_focus_weak),
+            ),
+            floatingActionButtonLocation: viewModel.isVisible
+                ? FloatingActionButtonLocation.endContained
+                : FloatingActionButtonLocation.endFloat,
+            bottomNavigationBar: _SongFliterBar(
+              isElevated: true,
+              isVisible: viewModel.isVisible,
+              searchController: viewModel.searchController,
+              focusNode: viewModel.focusNode,
+            ),
           );
         },
       ),
