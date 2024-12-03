@@ -1,29 +1,18 @@
-# rank_hub
+# RankHub
 
-A new Flutter project.
+学习下的产物，自行构建后能正常使用（大概），但存在大量可见的未完工的地方。
 
-## Getting Started
+待项目重构后，未来有计划打造一个音游查分聚合平台（幻想）。
 
-This project is a starting point for a Flutter application that follows the
-[simple app state management
-tutorial](https://flutter.dev/to/state-management-sample).
+## 目前支持
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- 舞萌 DX (落雪查分器)
+  - B50图生成
+  - 成绩查询
+  - 曲目查询
+  - 曲绘识别（但存在较大的问题，勉强能用）
+  - （TODO）进度查询
+  - （TODO）Rating 趋势
+  - （TODO）成绩同步（Leak me API plz）
 
-## Assets
-
-The `assets` directory houses images, fonts, and any other files you want to
-include with your application.
-
-The `assets/images` directory contains [resolution-aware
-images](https://flutter.dev/to/resolution-aware-images).
-
-## Localization
-
-This project generates localized messages based on arb files found in
-the `lib/src/localization` directory.
-
-To support additional languages, please visit the tutorial on
-[Internationalizing Flutter apps](https://flutter.dev/to/internationalization).
+项目重构后计划支持更多游戏。
