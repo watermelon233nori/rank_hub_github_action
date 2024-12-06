@@ -50,7 +50,7 @@ jobs:
 
       - name: Build for Android
         run: flutter build apk
-             flutter build appbundle
+      #        flutter build appbundle
         
 
         
