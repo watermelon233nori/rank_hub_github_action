@@ -1,10 +1,20 @@
+import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:rank_hub/src/model/maimai/song_notes.dart';
 
 class MaiNoteTable extends StatelessWidget {
   final SongNotes notes;
+  final int calculateMode;
 
-  const MaiNoteTable({super.key, required this.notes});
+  final Map<String, Color> typeColors = {
+    "CRITICAL": Colors.yellow,
+    "PERFECT": Colors.orange,
+    "GREAT": Colors.purpleAccent,
+    "GOOD": Colors.green,
+    "MISS": Colors.grey,
+  };
+
+  MaiNoteTable({super.key, required this.notes, required this.calculateMode});
 
   // 补正总物量计算
   double calculateTotalWeight() {
@@ -15,85 +25,122 @@ class MaiNoteTable extends StatelessWidget {
         5 * notes.breakCount.toDouble();
   }
 
-  // 转置表格数据
-  Map<String, Map<String, String>> calculateTransposedResults() {
+  Map<String, Map<String, String>> calculateResults() {
     final totalWeight = calculateTotalWeight();
     final x = 1 / totalWeight;
     final y = notes.breakCount > 0 ? 1 / notes.breakCount : 0.0;
 
-    // 定义每种 Note 的公式
-    final Map<String, Map<String, String>> results = {
-      "TAP": {
-        "数量": notes.tap.toString(),
-        "CRITICAL": notes.tap == 0 ? "-" : "${(x * 100).toStringAsFixed(4)}%",
-        "PERFECT": notes.tap == 0 ? "-" : "${(x * 100).toStringAsFixed(4)}%",
-        "GREAT": notes.tap == 0 ? "-" : "${(0.8 * x * 100).toStringAsFixed(4)}%",
-        "GOOD": notes.tap == 0 ? "-" : "${(0.5 * x * 100).toStringAsFixed(4)}%",
-        "MISS": notes.tap == 0 ? "-" : "0.0000%",
-      },
-      "HOLD": {
-        "数量": notes.hold.toString(),
-        "CRITICAL": notes.hold == 0 ? "-" : "${(2 * x * 100).toStringAsFixed(4)}%",
-        "PERFECT": notes.hold == 0 ? "-" : "${(2 * x * 100).toStringAsFixed(4)}%",
-        "GREAT": notes.hold == 0 ? "-" : "${(1.6 * x * 100).toStringAsFixed(4)}%",
-        "GOOD": notes.hold == 0 ? "-" : "${(x * 100).toStringAsFixed(4)}%",
-        "MISS": notes.hold == 0 ? "-" : "0.0000%",
-      },
-      "SLIDE": {
-        "数量": notes.slide.toString(),
-        "CRITICAL": notes.slide == 0 ? "-" : "${(3 * x * 100).toStringAsFixed(4)}%",
-        "PERFECT": notes.slide == 0 ? "-" : "${(3 * x * 100).toStringAsFixed(4)}%",
-        "GREAT": notes.slide == 0 ? "-" : "${(2.4 * x * 100).toStringAsFixed(4)}%",
-        "GOOD": notes.slide == 0 ? "-" : "${(2 * x * 100).toStringAsFixed(4)}%",
-        "MISS": notes.slide == 0 ? "-" : "0.0000%",
-      },
-      "TOUCH": {
-        "数量": notes.touch.toString(),
-        "CRITICAL": notes.touch == 0 ? "-" : "${(x * 100).toStringAsFixed(4)}%",
-        "PERFECT": notes.touch == 0 ? "-" : "${(x * 100).toStringAsFixed(4)}%",
-        "GREAT": notes.touch == 0 ? "-" : "${(0.8 * x * 100).toStringAsFixed(4)}%",
-        "GOOD": notes.touch == 0 ? "-" : "${(x * 100).toStringAsFixed(4)}%",
-        "MISS": notes.touch == 0 ? "-" : "0.0000%",
-      },
-      "BREAK": {
-        "数量": notes.breakCount.toString(),
-        "CRITICAL": "${(5 * x * 100 + y).toStringAsFixed(4)}%",
-        "PERFECT":
-            "${(5 * x * 100 + 0.75 * y).toStringAsFixed(4)}%\n${(5 * x * 100 + 0.5 * y).toStringAsFixed(4)}%",
-        "GREAT":
-            "${(4 * x * 100 + 0.4 * y).toStringAsFixed(4)}%\n${(3 * x * 100 + 0.4 * y).toStringAsFixed(4)}%\n${(2.5 * x * 100 + 0.4 * y).toStringAsFixed(4)}%",
-        "GOOD": "${(2 * x * 100 + 0.3 * y).toStringAsFixed(4)}%",
-        "MISS": "0.0000%",
-      },
-    };
+    Map<String, Map<String, String>> generateResults(
+        SongNotes notes, double x, double y, int mode) {
+      Map<String, String> generateEntry(
+          int count, double criticalFactor, double perfectFactor,
+          [double? greatFactor, double? goodFactor]) {
+        double criticalScore = criticalFactor * x * 100;
+        double perfectScore = perfectFactor * x * 100;
 
-    return results;
+        String calculate(double factor) {
+          double value = factor * x * 100;
+          if (mode == 1) {
+            value -= criticalScore;
+          } else if (mode == 2) {
+            value -= perfectScore;
+          }
+          return value.toStringAsFixed(4);
+        }
+
+        return {
+          "数量": count.toString(),
+          "CRITICAL": count == 0 ? "-" : "${calculate(criticalFactor)}%",
+          "PERFECT": count == 0 ? "-" : "${calculate(perfectFactor)}%",
+          "GREAT": count == 0
+              ? "-"
+              : "${calculate(greatFactor ?? perfectFactor * 0.8)}%",
+          "GOOD": count == 0
+              ? "-"
+              : "${calculate(goodFactor ?? perfectFactor * 0.5)}%",
+          "MISS": count == 0 ? "-" : "${calculate(0)}%",
+        };
+      }
+
+      String calculateBreak(double baseFactor, double additionalFactor,
+          {double? perfectBase}) {
+        double criticalScore = 5 * x * 100 + y;
+        double perfectScore = (perfectBase ?? 5) * x * 100 + 0.75 * y;
+        double value = baseFactor * x * 100 + additionalFactor * y;
+
+        if (mode == 1) {
+          value -= criticalScore;
+        } else if (mode == 2) {
+          value -= perfectScore;
+        }
+        return value.toStringAsFixed(4);
+      }
+
+      return {
+        "TAP": generateEntry(notes.tap, 1, 1, 0.8, 0.5),
+        "HOLD": generateEntry(notes.hold, 2, 2, 1.6, 1),
+        "SLIDE": generateEntry(notes.slide, 3, 3, 2.4, 2),
+        "TOUCH": generateEntry(notes.touch, 1, 1, 0.8, 1),
+        "BREAK": {
+          "数量": notes.breakCount.toString(),
+          "CRITICAL": "${calculateBreak(5, 1)}%",
+          "PERFECT": "${calculateBreak(5, 0.75)}%\n${calculateBreak(5, 0.5)}%",
+          "GREAT":
+              "${calculateBreak(4, 0.4)}%\n${calculateBreak(3, 0.4)}%\n${calculateBreak(2.5, 0.4)}%",
+          "GOOD": "${calculateBreak(2, 0.3)}%",
+          "MISS": "${calculateBreak(0, 0)}%",
+        },
+      };
+    }
+
+    return generateResults(notes, x, y, calculateMode);
   }
 
   @override
   Widget build(BuildContext context) {
-    final results = calculateTransposedResults();
+    final results = calculateResults();
 
-    return SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          dataRowMaxHeight: 56,
-          columns: [
-            const DataColumn(label: Text('类型')),
-            ...["数量","CRITICAL", "PERFECT", "GREAT", "GOOD", "MISS"]
-                .map((type) => DataColumn(label: Text(type))),
-          ],
-          rows: results.entries.map((entry) {
-            final noteType = entry.key;
-            final values = entry.value;
+    return SizedBox(
+      height: 600,
+      width: double.infinity,
+      child: DataTable2(
+        columnSpacing: 12,
+        minWidth: 720,
+        dataRowHeight: 56,
+        fixedLeftColumns: 1,
+        isHorizontalScrollBarVisible: false,
+        isVerticalScrollBarVisible: false,
+        headingRowHeight: 56,
+        columns: [
+          const DataColumn(
+            label: Text(
+              '类型',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          ...["数量", "CRITICAL", "PERFECT", "GREAT", "GOOD", "MISS"]
+              .map((type) => DataColumn(
+                    label: Text(
+                      type,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: typeColors[type]),
+                    ),
+                  )),
+        ],
+        rows: results.entries.map((entry) {
+          final noteType = entry.key;
+          final values = entry.value;
 
-            return DataRow(cells: [
-              DataCell(Text(noteType)),
-              ...["数量","CRITICAL", "PERFECT", "GREAT", "GOOD", "MISS"]
-                  .map((type) => DataCell(Text(values[type]!))),
-            ]);
-          }).toList(),
-        ),
-      );
+          return DataRow(cells: [
+            DataCell(Text(
+              noteType,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            )),
+            ...["数量", "CRITICAL", "PERFECT", "GREAT", "GOOD", "MISS"]
+                .map((type) => DataCell(Text(values[type]!))),
+          ]);
+        }).toList(),
+      ),
+    );
   }
 }
