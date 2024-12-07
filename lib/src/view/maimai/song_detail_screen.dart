@@ -46,6 +46,7 @@ class _SongDetailScreenState extends State<SongDetailScreen>
     _tabController = TabController(length: 2, vsync: this);
     _scrollController = ScrollController();
     _scrollController.addListener(() {
+      if (!context.mounted) return;
       setState(() {
         _titleOpacity = (_scrollController.offset / 250).clamp(0.0, 1.0);
       });
@@ -54,6 +55,7 @@ class _SongDetailScreenState extends State<SongDetailScreen>
     _audioPlayer.setReleaseMode(ReleaseMode.stop);
     _audioPlayer.onPlayerStateChanged.listen((state) {
       if (state == PlayerState.playing) {
+        if (!context.mounted) return;
         setState(() {
           _isLoading = false;
         });
@@ -64,29 +66,32 @@ class _SongDetailScreenState extends State<SongDetailScreen>
       vsync: this,
     );
     sub1 =_audioPlayer.onPositionChanged.listen((Duration p) {
+      if (!context.mounted) return;
       setState(() {
         _currentPosition = p.inSeconds.toDouble();
       });
     });
     sub2 = _audioPlayer.onDurationChanged.listen((Duration d) {
+      if (!context.mounted) return;
       setState(() {
         _totalDuration = d.inSeconds.toDouble();
       });
     });
     sub3 = _audioPlayer.onPlayerStateChanged.listen((state) {
       if (state == PlayerState.playing) {
+        if (!context.mounted) return;
         setState(() {
           _isLoading = false;
           _isPlaying = true;
         });
         _iconController.forward();
       } else {
-        try {
+        if (context.mounted) {
           setState(() {
             _isPlaying = false;
           });
           _iconController.reverse();
-        } catch (ignored) {}
+        }
       }
     });
     getVersion();
@@ -194,6 +199,7 @@ class _SongDetailScreenState extends State<SongDetailScreen>
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: NestedScrollView(
+        physics: const BouncingScrollPhysics(),
         controller: _scrollController,
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return [
@@ -220,7 +226,7 @@ class _SongDetailScreenState extends State<SongDetailScreen>
               expandedHeight: 300.0,
               pinned: true,
               flexibleSpace: FlexibleSpaceBar(
-                stretchModes: [StretchMode.blurBackground],
+                stretchModes: const [StretchMode.blurBackground],
                 background: Stack(
                   fit: StackFit.expand,
                   children: [
@@ -373,7 +379,7 @@ class _SongDetailScreenState extends State<SongDetailScreen>
           children: [
             MaiSongInfoList(song: widget.song, version: _version),
             SingleChildScrollView(
-              physics: ScrollPhysics(),
+              physics: BouncingScrollPhysics(),
               child: Column(
                 children: [
                   const SizedBox(height: 32),

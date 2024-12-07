@@ -16,7 +16,7 @@ class _WikiPageState extends State<WikiPage> {
     return Consumer<DataSourceManager>(builder: (ctx, dataSouceManager, child) {
       DataSourceProvider? provider = dataSouceManager.activeDataSource;
       if (provider == null) {
-        return Scaffold(body: Container(child: Center(child: Text('没有数据'),)));
+        return const Scaffold(body: Center(child: Text('没有数据'),));
       } else {
         return provider.buildSongList();
       }

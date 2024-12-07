@@ -12,7 +12,7 @@ class SettingsPage extends StatelessWidget {
         builder: (context, viewModel, child) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('设置'),
+              title: const Text('设置(施工中)'),
             ),
             body: ListView(
               children: [

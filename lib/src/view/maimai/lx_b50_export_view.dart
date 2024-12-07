@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:rank_hub/src/view/maimai/lx_mai_record_card.dart';
 import 'package:rank_hub/src/viewmodel/maimai/lx_rank_page_vm.dart';
 
@@ -15,7 +15,7 @@ class LxB50ExportView extends StatelessWidget {
   final GlobalKey combinedKey = GlobalKey();
 
   Future<void> _saveToGallery(Uint8List pngBytes) async {
-    final result = await ImageGallerySaver.saveImage(
+    final result = await ImageGallerySaverPlus.saveImage(
       Uint8List.fromList(pngBytes),
       quality: 100,
       name: "B15_B35_Scores",

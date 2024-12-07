@@ -19,7 +19,7 @@ class _MainPageState extends State<MainPage> {
 
   // 页面列表
   final List<Widget> _pages = [
-    ImageSliderPage(),
+    Center(child: Text('还没想好这部分要怎么写'),),
     RankPage(),
     WikiPage(),
     DataSrcPage(),

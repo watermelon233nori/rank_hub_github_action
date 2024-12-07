@@ -6,6 +6,7 @@ import 'package:rank_hub/src/provider/lx_mai_provider.dart';
 
 class LxMaiWikiPageViewModel extends ChangeNotifier {
   final LxMaiProvider lxMaiProvider;
+  final BuildContext buildContext;
 
   List<SongInfo> _songs = [];
   List<SongAlias> _aliases = [];
@@ -19,12 +20,12 @@ class LxMaiWikiPageViewModel extends ChangeNotifier {
   final TextEditingController searchController = TextEditingController();
   final FocusNode focusNode = FocusNode();
 
-  LxMaiWikiPageViewModel({required this.lxMaiProvider}) {
+  LxMaiWikiPageViewModel(this.buildContext, {required this.lxMaiProvider}) {
     scrollController = ScrollController();
     scrollController.addListener(_listenToScroll);
     searchController.addListener(() {
       searchQuery = searchController.text;
-      notifyListeners();
+      _requestRebuild();
     });
     searchController.addListener(() {
       searchQuery = searchController.text;
@@ -54,7 +55,7 @@ class LxMaiWikiPageViewModel extends ChangeNotifier {
   void showFab() {
     if (!isVisible) {
       isVisible = true;
-      notifyListeners();
+      _requestRebuild();
     }
   }
 
@@ -64,12 +65,13 @@ class LxMaiWikiPageViewModel extends ChangeNotifier {
     }
     if (isVisible) {
       isVisible = false;
-      notifyListeners();
+      _requestRebuild();
     }
   }
 
   @override
   void dispose() {
+    focusNode.unfocus();
     scrollController.removeListener(_listenToScroll);
     scrollController.dispose();
     searchController.dispose();
@@ -117,17 +119,23 @@ class LxMaiWikiPageViewModel extends ChangeNotifier {
         return matchesId || matchesTitle || matchesArtist || matchesAlias;
       }).toList();
     }
-    notifyListeners();
+    _requestRebuild();
   }
 
   void _setLoading(bool value) {
     _isLoading = value;
-    notifyListeners();
+    _requestRebuild();
   }
 
   void _setErrorState(bool hasError, String message) {
     _hasError = hasError;
     _errorMessage = message;
-    notifyListeners();
+    _requestRebuild();
+  }
+
+  void _requestRebuild() {
+    if (buildContext.mounted) {
+      notifyListeners();
+    }
   }
 }

@@ -55,7 +55,7 @@ class _MaiCoverRecognitionSetupState extends State<MaiCoverRecognitionSetup> {
   }
 
   Future<void> initMCR(List<SongInfo> songs) async {
-    final box = await Hive.lazyBox<MaiCoverFeature>('mai_cn_cover_features');
+    final box = await Hive.openLazyBox<MaiCoverFeature>('mai_cn_cover_features');
     setState(() {
       loading = true;
     });
@@ -123,9 +123,11 @@ class _MaiCoverRecognitionSetupState extends State<MaiCoverRecognitionSetup> {
 
     log("Processing images with OpenCV ORB...");
 
+    await box.clear();
+
     for (SongInfo songInfo in songs) {
-      if (songInfo.id >= 10000) {
-        continue;
+      if (songInfo.id >= 10001) {
+        break;
       }
 
       final imagePath = '${tempDir.path}/${songInfo.id}.png';
@@ -139,19 +141,21 @@ class _MaiCoverRecognitionSetupState extends State<MaiCoverRecognitionSetup> {
       try {
         // 加载图片并创建全白掩膜
         final mat = cv.imread(imagePath);
+        final grayMat = cv.cvtColor(mat, cv.COLOR_BGR2GRAY);
         final mask = cv.Mat.zeros(mat.rows, mat.cols, cv.MatType.CV_8UC1);
         mask.setTo(cv.Scalar.white); // 设置为全白
 
-        // ORB 特征提取
+        // SIFT 特征提取
         final sift = cv.SIFT.empty();
-        final keypoints = <List<double>>[];
+    //  final keypoints = <List<double>>[];
         final descriptors = <List<num>>[];
 
         // 提取特征点和描述符
-        final result = sift.detectAndCompute(mat, mask);
-        for (final kp in result.$1) {
-          keypoints.add([kp.x, kp.y, kp.size, kp.angle]);
-        }
+        final result = sift.detectAndCompute(grayMat, mask);
+    //  不储存 KeyPoint
+    //  for (final kp in result.$1) {
+    //    keypoints.add([kp.x, kp.y, kp.size, kp.angle]);
+    //  }
         result.$2.forEachRow(
           (row, values) {
             descriptors.add(values);
@@ -161,11 +165,14 @@ class _MaiCoverRecognitionSetupState extends State<MaiCoverRecognitionSetup> {
         // 保存到 Hive
         final featureData = MaiCoverFeature(
           id: songInfo.id,
-          keypoints: keypoints,
+      //  keypoints: keypoints,
           descriptors: descriptors,
         );
         await box.put(songInfo.id, featureData);
-        log('Saved features for song: ${songInfo.id}');
+        log('Detect features for song: ${songInfo.id} desc size: ${descriptors.length}');
+    //  for (List<num> list in descriptors) {
+    //    print(list);
+    //  }
       } catch (e) {
         log('Failed to process song ${songInfo.id}: $e');
       }

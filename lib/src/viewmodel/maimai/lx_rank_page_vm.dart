@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:rank_hub/src/model/maimai/player_data.dart';
 import 'package:rank_hub/src/model/maimai/song_score.dart';
 import 'package:rank_hub/src/provider/lx_mai_provider.dart';
@@ -8,9 +7,7 @@ class MaiRankViewModel extends ChangeNotifier {
   late ScrollController scrollController;
   late PlayerData playerData;
 
-  bool isVisible = true;
   bool isLoading = false;
-  String searchQuery = "";
   String playerName = "";
   int playerRating = 0;
   int currentVerRating = 0;
@@ -18,18 +15,9 @@ class MaiRankViewModel extends ChangeNotifier {
   List<SongScore> b15Records = [];
   List<SongScore> b35Records = [];
 
-  final TextEditingController searchController = TextEditingController();
-  final FocusNode focusNode = FocusNode();
   final BuildContext context;
 
-  MaiRankViewModel(this.context) {
-    scrollController = ScrollController();
-    scrollController.addListener(_listenToScroll);
-    searchController.addListener(() {
-      searchQuery = searchController.text;
-      notifyListeners();
-    });
-  }
+  MaiRankViewModel(this.context);
 
   ShaderMask getShaderMaskByRating(int rating, Widget child) {
     Gradient gradient;
@@ -60,8 +48,10 @@ class MaiRankViewModel extends ChangeNotifier {
       gradient = const LinearGradient(
           colors: [Colors.amber, Colors.orangeAccent]); // 金色渐变
     } else if (rating <= 14999) {
-      gradient = const LinearGradient(
-          colors: [Color.fromARGB(255, 252, 208, 122), Color.fromARGB(255, 252, 255, 160)]); // 白金渐变
+      gradient = const LinearGradient(colors: [
+        Color.fromARGB(255, 252, 208, 122),
+        Color.fromARGB(255, 252, 255, 160)
+      ]); // 白金渐变
     } else {
       gradient = const LinearGradient(colors: [
         Color.fromARGB(255, 56, 255, 219),
@@ -82,34 +72,37 @@ class MaiRankViewModel extends ChangeNotifier {
   Future<void> initialize() async {
     try {
       await getPlayerName();
-        await getPlayerRating();
-        await initB50();
-        await getB15Rating();
-        await getB35Rating();
-        await getPlayerData();
+      await getPlayerRating();
+      await initB50();
+      await getB15Rating();
+      await getB35Rating();
+      await getPlayerData();
     } catch (e) {
       // 处理初始化错误
       debugPrint("Initialization error: $e");
     } finally {
       isLoading = false; // 初始化完成
-      notifyListeners();
+      _requestRebuild();
     }
   }
 
   Future<void> getPlayerData() async {
-    playerData = await LxMaiProvider(context: context).lxApiService.getPlayerData();
+    playerData =
+        await LxMaiProvider(context: context).lxApiService.getPlayerData();
   }
 
   Future<void> initB50() async {
-    b15Records = await LxMaiProvider(context: context).lxApiService.getB15Records();
-    b35Records = await LxMaiProvider(context: context).lxApiService.getB35Records();
+    b15Records =
+        await LxMaiProvider(context: context).lxApiService.getB15Records();
+    b35Records =
+        await LxMaiProvider(context: context).lxApiService.getB35Records();
 
-    notifyListeners();
+    _requestRebuild();
   }
 
   Future<void> getB15Rating() async {
     int rating = 0;
-    for(SongScore record in b15Records) {
+    for (SongScore record in b15Records) {
       rating += record.dxRating!.truncate();
     }
     currentVerRating = rating;
@@ -117,7 +110,7 @@ class MaiRankViewModel extends ChangeNotifier {
 
   Future<void> getB35Rating() async {
     int rating = 0;
-    for(SongScore record in b35Records) {
+    for (SongScore record in b35Records) {
       rating += record.dxRating!.truncate();
     }
     pastVerRating = rating;
@@ -128,7 +121,7 @@ class MaiRankViewModel extends ChangeNotifier {
         (await LxMaiProvider(context: context).lxApiService.getPlayerData())
             .name;
 
-    notifyListeners();
+    _requestRebuild();
   }
 
   Future<void> getPlayerRating() async {
@@ -136,45 +129,12 @@ class MaiRankViewModel extends ChangeNotifier {
         (await LxMaiProvider(context: context).lxApiService.getPlayerData())
             .rating;
 
-    notifyListeners();
+    _requestRebuild();
   }
 
-  void _listenToScroll() {
-    switch (scrollController.position.userScrollDirection) {
-      case ScrollDirection.forward:
-        showFab();
-        break;
-      case ScrollDirection.reverse:
-        hideFab();
-        break;
-      case ScrollDirection.idle:
-        break;
-    }
-  }
-
-  void showFab() {
-    if (!isVisible) {
-      isVisible = true;
+  void _requestRebuild() {
+    if (context.mounted) {
       notifyListeners();
     }
-  }
-
-  void hideFab() {
-    if (searchController.text.isNotEmpty || focusNode.hasFocus) {
-      return;
-    }
-    if (isVisible) {
-      isVisible = false;
-      notifyListeners();
-    }
-  }
-
-  @override
-  void dispose() {
-    scrollController.removeListener(_listenToScroll);
-    scrollController.dispose();
-    searchController.dispose();
-    focusNode.dispose();
-    super.dispose();
   }
 }

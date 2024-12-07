@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:rank_hub/src/model/maimai/collection.dart' as mai;
 import 'package:rank_hub/src/model/maimai/game_data.dart' as mai;
@@ -32,6 +32,7 @@ void main() async {
   await settingsController.loadSettings();
 
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await initHive();
 
   // Run the app and pass in the SettingsController. The app listens to the
@@ -54,8 +55,7 @@ void main() async {
 }
 
 Future<void> initHive() async {
-  final appDocumentDir = await getApplicationDocumentsDirectory();
-  Hive.initFlutter(appDocumentDir.path);
+  Hive.initFlutter();
 
   //maimai
   Hive.registerAdapter(mai.SongScoreAdapter());

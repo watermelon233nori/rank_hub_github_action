@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
@@ -15,7 +17,7 @@ class WikiPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (ctx) =>
-          LxMaiWikiPageViewModel(lxMaiProvider: LxMaiProvider(context: ctx))
+          LxMaiWikiPageViewModel(lxMaiProvider: LxMaiProvider(context: ctx), context)
             ..fetchSongs(),
       child: Consumer<LxMaiWikiPageViewModel>(
         builder: (context, viewModel, child) {
@@ -79,6 +81,7 @@ class WikiPage extends StatelessWidget {
                 final box = await Hive.openLazyBox<MaiCoverFeature>(
                     'mai_cn_cover_features');
                 if (box.isNotEmpty) {
+                  print(File(box.path!).lengthSync()/(1024 * 1024));
                   await box.close();
                   Navigator.push(
                     context,
@@ -88,6 +91,7 @@ class WikiPage extends StatelessWidget {
                   );
                   return;
                 }
+                await box.close();
                 Navigator.push(
                   context,
                   MaterialPageRoute(

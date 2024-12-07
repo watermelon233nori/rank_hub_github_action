@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui' as ui;
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:opencv_core/opencv.dart' as cv;
+import 'package:image/image.dart' as img;
 import 'package:rank_hub/src/model/maimai/mai_cover_feature.dart';
+import 'package:rank_hub/src/utils/recognition_utils.dart';
 
 class MaiCoverRecognitionPage extends StatefulWidget {
   const MaiCoverRecognitionPage({super.key});
@@ -45,88 +48,118 @@ class _MaiCoverRecognitionPageState extends State<MaiCoverRecognitionPage> {
 
   Future<void> _capturePhoto() async {
     XFile xFile = await _cameraController!.takePicture();
+
+    File imageFile = File(xFile.path);
+    ui.Image image = await decodeImageFromList(await imageFile.readAsBytes());
+
+    // 计算裁剪框在图像上的实际坐标
+    const cropWidth = 300; // 裁剪框宽度
+    const cropHeight = 300; // 裁剪框高度
+    int imageWidth = image.width;
+    int imageHeight = image.height;
+
+    int cropX = (imageWidth - cropWidth) ~/ 2;
+    int cropY = (imageHeight - cropHeight) ~/ 2;
+
+    // 裁剪图像
+    img.Image originalImage = img.decodeImage(await imageFile.readAsBytes())!;
+    img.Image croppedImage = img.copyCrop(originalImage,
+        x: cropX, y: cropY, width: cropWidth, height: cropHeight);
+
+    // 覆盖原始文件
+    imageFile.writeAsBytesSync(img.encodeJpg(croppedImage));
+
     await _processCameraFrame(xFile);
   }
 
   Future<void> _processCameraFrame(XFile xFile) async {
     try {
-      cv.BFMatcher bfMatcher = cv.BFMatcher.create();
-      final box = await Hive.openLazyBox<MaiCoverFeature>('mai_cn_cover_features');
+      Stopwatch stopwatch = Stopwatch()..start();
+      final box =
+          await Hive.openLazyBox<MaiCoverFeature>('mai_cn_cover_features');
+      print(stopwatch.elapsedMilliseconds);
 
-      // 存储最优匹配信息
-      double minDistance = double.infinity;
-      int? bestMatchId;
-      double maxDistanceThreshold = 200.0;
+      List<int> keys = box.keys.cast<int>().toList();
+      const int maxBatchSize = 200;
 
-      cv.Mat mat = cv.imread(xFile.path);
-      cv.SIFT sift = cv.SIFT.empty();
-      final mask = cv.Mat.zeros(mat.rows, mat.cols, cv.MatType.CV_8UC1);
-      mask.setTo(cv.Scalar.white); // 设置为全白
+      List<MatchResult> allResults = [];
 
-      cv.Mat queryMat = sift.detectAndCompute(mat, mask).$2;
+      print(stopwatch.elapsedMilliseconds);
 
-      print(queryMat.type);
-    
+      for (int i = 0; i < keys.length; i += maxBatchSize) {
+        // 按批加载数据
+        List<int> batchKeys = keys.skip(i).take(maxBatchSize).toList();
+        List<FeatureData> featureDataList = [];
 
-      // 遍历 Hive 数据库中的所有特征
-      for (int id in box.keys) {
-        MaiCoverFeature? maiCoverFeature = await box.get(id);
-        if (maiCoverFeature == null) {
-          continue;
+        for (int key in batchKeys) {
+          MaiCoverFeature? feature = await box.get(key);
+          if (feature != null) {
+            featureDataList.add(FeatureData(key, feature.descriptors));
+          }
         }
-        cv.Mat trainMat = cv.Mat.from2DList(
-          maiCoverFeature.descriptors,
-          cv.MatType.CV_32FC1,
+
+        print(stopwatch.elapsedMilliseconds);
+
+        // 将数据分为 4 份
+        int partitionSize = (featureDataList.length / 4).ceil();
+        List<List<FeatureData>> partitions = List.generate(
+          4,
+          (i) => featureDataList
+              .skip(i * partitionSize)
+              .take(partitionSize)
+              .toList(),
         );
 
-        // 执行特征匹配
-        cv.VecDMatch matches = await bfMatcher.matchAsync(queryMat, trainMat);
+        // 创建 Isolate 的消息通道
+        List<ReceivePort> receivePorts = List.generate(4, (_) => ReceivePort());
+        List<Future<List<MatchResult>>> futures = [];
 
-        List<cv.DMatch> goodMatches =
-            matches.where((m) => m.distance < maxDistanceThreshold).toList();
+        for (int j = 0; j < 4; j++) {
+          Completer<List<MatchResult>> completer = Completer();
+          receivePorts[j].listen((message) {
+            if (message is List<MatchResult>) {
+              completer.complete(message);
+            }
+          });
 
-        // 计算最小距离
-        if (goodMatches.isNotEmpty) {
-          double avgDistance =
-              goodMatches.map((m) => m.distance).reduce((a, b) => a + b) /
-                  goodMatches.length;
-          if (avgDistance == 0.0) {
-            continue;
-          }
-          if (avgDistance < minDistance) {
-            minDistance = avgDistance;
-            bestMatchId = maiCoverFeature.id;
-          }
+          futures.add(completer.future);
+
+          // 启动 Isolate
+          await Isolate.spawn(
+            RecognitionUtils().matchCoverWithIsolate,
+            IsolateData(
+              receivePorts[j].sendPort,
+              xFile.path,
+              partitions[j],
+            ),
+          );
         }
 
-        maiCoverFeature = null;
-        // 释放 trainMat 的资源
-        trainMat.dispose();
+        // 等待 Isolate 结果并聚合
+        List<MatchResult> batchResults =
+            (await Future.wait(futures)).expand((x) => x).toList();
+        allResults.addAll(batchResults);
+
+        // 释放资源
+        for (var port in receivePorts) {
+          port.close();
+        }
       }
 
-      // 释放 queryMat 的资源
-      queryMat.dispose();
+      // 按距离排序并选取前三个
+      allResults.sort((a, b) => a.avgDistance.compareTo(b.avgDistance));
+      List<MatchResult> topMatches = allResults.take(10).toList();
+
+      // 输出结果
+      for (var match in topMatches) {
+        print("Match ID: ${match.id}, Distance: ${match.avgDistance}");
+      }
+
+      print(stopwatch.elapsed);
+      stopwatch.stop();
+
+      // 释放资源
       File(xFile.path).deleteSync();
-
-      // 输出最匹配的图片 ID
-      if (bestMatchId != null) {
-        print("Best match ID: $bestMatchId with distance: $minDistance");
-      } else {
-        print("No matches found.");
-      }
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<cv.Mat> _convertCameraImageToMat(CameraImage image) async {
-    // 将 YUV 数据转换为 RGB 格式
-    try {
-      final cv.Mat yuvMat = cv.Mat.create(
-          rows: image.height, cols: image.width, type: cv.MatType.CV_8UC4);
-      yuvMat.data.setAll(0, image.planes[0].bytes);
-
-      return yuvMat;
     } catch (e) {
       rethrow;
     }
@@ -173,6 +206,23 @@ class _MaiCoverRecognitionPageState extends State<MaiCoverRecognitionPage> {
             )
           else
             Center(child: CircularProgressIndicator()),
+
+          if (_cameraController != null &&
+              _cameraController!.value.isInitialized)
+            Center(
+              child: Transform.scale(
+                scale: 1 /
+                    (_cameraController!.value.aspectRatio *
+                        MediaQuery.of(context).size.aspectRatio),
+                child: Container(
+                  width: 300, // 设置裁剪框宽度
+                  height: 300, // 设置裁剪框高度
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white, width: 4),
+                  ),
+                ),
+              ),
+            ),
 
           // 关闭按钮
           Align(

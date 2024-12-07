@@ -96,7 +96,7 @@ class LxApiService {
     return scoreBox.get(id);
   }
 
-  // 获取公用的歌曲列表（不依赖于玩家）
+  // 获取歌曲列表
   Future<List<SongInfo>> getSongList(
       {int? version, bool? notes, bool forceRefresh = false}) async {
     final songBox = await Hive.openBox<SongInfo>('MaiCnSongs');
@@ -202,7 +202,7 @@ class LxApiService {
     return playerDataBox.keys.map((key) => key as String).toList();
   }
 
-  // 获取公用的别名列表（不依赖于玩家）
+  // 获取别名列表
   Future<List<SongAlias>> getAliasList({bool forceRefresh = false}) async {
     final aliasBox = await Hive.openBox<SongAlias>('MaiCnAliasBox');
     final cacheInfoBox = await Hive.openBox<DateTime>('cacheInfoBox');
@@ -233,7 +233,12 @@ class LxApiService {
     }
   }
 
-  // 获取歌曲版本名称（不依赖于玩家）
+  static Future<SongAlias?> getSongAliasById(int id) async {
+    final aliasBox = await Hive.openBox<SongAlias>('MaiCnAliasBox');
+    return aliasBox.get(id);
+  }
+
+  // 获取歌曲版本名称
   Future<String> getTitleByVersion(int version) async {
     final box = await Hive.openBox<SongVersion>('MaiCnVersions');
     List<SongVersion> versions = box.values.toList();

@@ -18,9 +18,9 @@ class MaiCoverFeatureAdapter extends TypeAdapter<MaiCoverFeature> {
     };
     return MaiCoverFeature(
       id: fields[0] as int,
-      keypoints: (fields[1] as List)
-          .map((dynamic e) => (e as List).cast<double>())
-          .toList(),
+      keypoints: (fields[1] as List?)
+          ?.map((dynamic e) => (e as List).cast<double>())
+          ?.toList(),
       descriptors: (fields[2] as List)
           .map((dynamic e) => (e as List).cast<num>())
           .toList(),

@@ -8,14 +8,14 @@ class MaiCoverFeature {
   final int id;
 
   @HiveField(1)
-  final List<List<double>> keypoints;
+  final List<List<double>>? keypoints;
 
   @HiveField(2)
   final List<List<num>> descriptors;
 
   MaiCoverFeature({
     required this.id,
-    required this.keypoints,
+    this.keypoints,
     required this.descriptors,
   });
 }
