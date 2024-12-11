@@ -27,6 +27,12 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Setup Java 17 (Oracle JDK)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'oracle' # See 'Supported distributions' for available options
+          java-version: '17'
+
       # Setup Flutter environment.
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
