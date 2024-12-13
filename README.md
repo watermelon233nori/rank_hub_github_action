@@ -39,9 +39,12 @@
 
 ## 部分截图
 
-<div style="display: flex; flex-wrap: wrap; gap: 10px;">
-    <img src="https://github.com/user-attachments/assets/33d3f0dd-d90e-4b99-8bc0-6dc8f805b116" alt="089E5066-4639-45DC-8560-823DE0812AE5" style="width: 30%;">
-    <img src="https://github.com/user-attachments/assets/eef1f5ad-c5fc-442b-a35e-3780de26966e" alt="9250E369-6509-44D8-A2E5-5C64FF26B064" style="width: 30%;">
-    <img src="https://github.com/user-attachments/assets/bcdc77f0-2cdd-464b-8575-7f29f99a642f" alt="DB8DAF82-B0E2-4F7B-8D44-5990FF10E70F" style="width: 30%;">
+<div style="overflow-x: auto; white-space: nowrap;">
+    <img src="https://github.com/user-attachments/assets/33d3f0dd-d90e-4b99-8bc0-6dc8f805b116" alt="089E5066-4639-45DC-8560-823DE0812AE5" style="width: 19%; display: inline-block; margin-right: 10px;">
+    <img src="https://github.com/user-attachments/assets/eef1f5ad-c5fc-442b-a35e-3780de26966e" alt="9250E369-6509-44D8-A2E5-5C64FF26B064" style="width: 19%; display: inline-block; margin-right: 10px;">
+    <img src="https://github.com/user-attachments/assets/bcdc77f0-2cdd-464b-8575-7f29f99a642f" alt="DB8DAF82-B0E2-4F7B-8D44-5990FF10E70F" style="width: 19%; display: inline-block; margin-right: 10px;">
+    <img src="https://github.com/user-attachments/assets/8833e0dc-23d7-4ffc-a4d6-5c0a99c2cf42" alt="IMG_4200" style="width: 19%; display: inline-block; margin-right: 10px;">
+    <img src="https://github.com/user-attachments/assets/fdc440e5-dd1f-40c6-920c-41f7cb554aed" alt="IMG_4201" style="width: 19%; display: inline-block; margin-right: 10px;">
 </div>
+
 
