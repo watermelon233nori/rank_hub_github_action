@@ -98,14 +98,16 @@ class _MaiSongInfoListState extends State<MaiSongInfoList> {
                   subtitle: Wrap(
                     spacing: 8.0,
                     runSpacing: 4.0,
-                    children:
-                        aliases.map((alias) => buildCopyableChip(alias)).toList(),
+                    children: aliases
+                        .map((alias) => buildCopyableChip(alias))
+                        .toList(),
                   ),
                 );
               } else {
                 return const ListTile(
                   leading: Icon(Icons.label),
-                  title: Text('曲目别名', style: TextStyle(fontWeight: FontWeight.bold)),
+                  title: Text('曲目别名',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text('无别名'),
                 );
               }

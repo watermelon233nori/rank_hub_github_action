@@ -35,14 +35,20 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>bilibili</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>App needs access to save images to your photo library.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict/>
 	<key>NSCameraUsageDescription</key>
 	<string>RankHub 需要照相机权限进行曲绘识别</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>RankHub 需要照相机权限进行曲绘识别</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>App needs access to save images to your photo library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>RankHub 需要通过你选取的照片进行曲绘识别</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

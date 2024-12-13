@@ -1,10 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:rank_hub/src/model/maimai/song_info.dart';
 import 'package:rank_hub/src/model/maimai/song_score.dart';
+import 'package:rank_hub/src/services/lx_api_services.dart';
+import 'package:rank_hub/src/utils/common.dart';
+import 'package:rank_hub/src/view/maimai/song_detail_screen.dart';
 import 'package:rank_hub/src/widget/record_card.dart';
 
 class LxMaiRecordCard extends RecordCard<SongScore> {
-
   const LxMaiRecordCard({super.key, required super.recordData});
 
   // Method to get level index color based on the level index
@@ -112,129 +116,141 @@ class LxMaiRecordCard extends RecordCard<SongScore> {
     final imageUrl =
         "https://assets2.lxns.net/maimai/jacket/${recordData.id}.png";
 
-    return Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        clipBehavior: Clip.hardEdge,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: ShaderMask(
-                shaderCallback: (Rect bounds) {
-                  return const LinearGradient(
-                    colors: [Colors.transparent, Colors.black],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ).createShader(bounds);
-                },
-                blendMode: BlendMode.dstIn,
-                child: Opacity(
-                    opacity: 0.4,
-                    child: CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      fit: BoxFit.cover,
-                      fadeInDuration: const Duration(
-                          milliseconds: 500), // Adjust duration as needed
-                    )),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          recordData.songName!,
-                          style: Theme.of(context).textTheme.titleMedium,
-                          overflow: TextOverflow
-                              .ellipsis, // Ensures long song names don't overflow
-                        ),
-                      ),
-                    ],
+    return GestureDetector(
+        onTap: () {
+          Common.futureNavigator<SongInfo>(
+              context: context,
+              fetchData: () async =>
+                  await LxApiService.getSongDataById(recordData.id),
+              builder: (song) => SongDetailScreen(song: song));
+        },
+        child: Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            clipBehavior: Clip.hardEdge,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: ShaderMask(
+                    shaderCallback: (Rect bounds) {
+                      return const LinearGradient(
+                        colors: [Colors.transparent, Colors.black],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ).createShader(bounds);
+                    },
+                    blendMode: BlendMode.dstIn,
+                    child: Opacity(
+                        opacity: 0.4,
+                        child: CachedNetworkImage(
+                          imageUrl: imageUrl,
+                          fit: BoxFit.cover,
+                          fadeInDuration: const Duration(
+                              milliseconds: 500), // Adjust duration as needed
+                        )),
                   ),
-                  const SizedBox(height: 16),
-                  // Song Title and Level displayed on the same row
-                  Row(
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Chip(
-                        side: const BorderSide(width: 0),
-                        label: Text(
-                          "$levelPrefix ${recordData.level}",
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        backgroundColor: _getLevelColor(recordData.levelIndex),
-                      ),
-                      const SizedBox(width: 8),
-                      // Song Name
-                      // Type Chip (Standard or DX)
-                      Chip(
-                        side: const BorderSide(width: 0),
-                        label: Text(
-                          recordData.type == 'standard' ? '标准' : 'DX',
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        backgroundColor: _getTypeColor(recordData.type),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // Achievements with integer and decimal parts
-                  Row(
-                    children: [
-                      RichText(
-                        text: TextSpan(
-                          style: DefaultTextStyle.of(context).style,
-                          children: [
-                            TextSpan(
-                              text: intPart, // Integer part of achievements
-                              style: const TextStyle(
-                                  fontSize: 32, fontWeight: FontWeight.bold),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              recordData.songName!,
+                              style: Theme.of(context).textTheme.titleMedium,
+                              overflow: TextOverflow
+                                  .ellipsis, // Ensures long song names don't overflow
                             ),
-                            TextSpan(
-                              text:
-                                  '.$decimalPart%', // Decimal part of achievements
-                              style: const TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      // Song Title and Level displayed on the same row
+                      Row(
+                        children: [
+                          Chip(
+                            side: const BorderSide(width: 0),
+                            label: Text(
+                              "$levelPrefix ${recordData.level}",
+                              style: const TextStyle(color: Colors.white),
                             ),
-                          ],
-                        ),
+                            backgroundColor:
+                                _getLevelColor(recordData.levelIndex),
+                          ),
+                          const SizedBox(width: 8),
+                          // Song Name
+                          // Type Chip (Standard or DX)
+                          Chip(
+                            side: const BorderSide(width: 0),
+                            label: Text(
+                              recordData.type == 'standard' ? '标准' : 'DX',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: _getTypeColor(recordData.type),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      // Achievements with integer and decimal parts
+                      Row(
+                        children: [
+                          RichText(
+                            text: TextSpan(
+                              style: DefaultTextStyle.of(context).style,
+                              children: [
+                                TextSpan(
+                                  text: intPart, // Integer part of achievements
+                                  style: const TextStyle(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(
+                                  text:
+                                      '.$decimalPart%', // Decimal part of achievements
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Spacer(),
+                          if (_getFcText(recordData.fc).isNotEmpty)
+                            Chip(
+                              side: const BorderSide(width: 0),
+                              label: Text(
+                                _getFcText(recordData.fc),
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                              backgroundColor: _getFcColor(recordData.fc),
+                            ),
+                          const SizedBox(width: 8),
+                          if (_getFsText(recordData.fs).isNotEmpty)
+                            Chip(
+                              side: const BorderSide(width: 0),
+                              label: Text(
+                                _getFsText(recordData.fs),
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                              backgroundColor: _getFsColor(recordData.fs),
+                            ),
+                        ],
                       ),
                       const Spacer(),
-                      if (_getFcText(recordData.fc).isNotEmpty)
-                        Chip(
-                          side: const BorderSide(width: 0),
-                          label: Text(
-                            _getFcText(recordData.fc),
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          backgroundColor: _getFcColor(recordData.fc),
-                        ),
-                      const SizedBox(width: 8),
-                      if (_getFsText(recordData.fs).isNotEmpty)
-                        Chip(
-                          side: const BorderSide(width: 0),
-                          label: Text(
-                            _getFsText(recordData.fs),
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          backgroundColor: _getFsColor(recordData.fs),
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("DX Score: ${recordData.dxScore}"),
+                          Text(
+                              "Rating: ${recordData.dxRating!.toStringAsFixed(0)}"),
+                        ],
+                      ),
                     ],
                   ),
-                  const Spacer(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("DX Score: ${recordData.dxScore}"),
-                      Text("Rating: ${recordData.dxRating!.toStringAsFixed(0)}"),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ));
+                ),
+              ],
+            )));
   }
 }

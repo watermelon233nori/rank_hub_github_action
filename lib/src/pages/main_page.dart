@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rank_hub/src/pages/data_src_page.dart';
 import 'package:rank_hub/src/pages/rank_page.dart';
-import 'package:rank_hub/src/pages/slider_overview_page.dart';
 import 'package:rank_hub/src/pages/wiki_page.dart';
 import 'package:rank_hub/src/view/settings_view.dart';
 
@@ -14,17 +13,18 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  static const _channel = MethodChannel('fun.meow0.rankhub.network');
   int _selectedIndex = 0; // 当前选中的导航索引
   late final PageController _pageController; // 延迟初始化 PageController
 
-  // 页面列表
-  final List<Widget> _pages = [
-    Center(child: Text('还没想好这部分要怎么写'),),
-    RankPage(),
-    WikiPage(),
-    DataSrcPage(),
-    SettingsPage(),
-  ];
+  Future<void> startTunnel() async {
+    await _channel.invokeMethod('startTunnel');
+  }
+
+  Future<void> stopTunnel() async {
+    await _channel.invokeMethod('stopTunnel');
+  }
+
 
   // 底部导航项列表
   final List<NavigationDestination> _navItems = const [
@@ -53,7 +53,8 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: _selectedIndex); // 初始化 PageController
+    _pageController =
+        PageController(initialPage: _selectedIndex); // 初始化 PageController
   }
 
   @override
@@ -87,6 +88,23 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+
+  // 页面列表
+  final List<Widget> _pages = [
+    Center(
+        child: Column(
+      children: [
+        SizedBox(height: 64,),
+        ElevatedButton(onPressed: startTunnel, child: Text('启动')),
+
+        ElevatedButton(onPressed: stopTunnel, child: Text('关闭')),
+      ],
+    )),
+    RankPage(),
+    WikiPage(),
+    DataSrcPage(),
+    SettingsPage(),
+  ];
     // 设置系统界面样式
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(

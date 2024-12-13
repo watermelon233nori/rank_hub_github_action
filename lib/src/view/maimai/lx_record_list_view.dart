@@ -69,8 +69,8 @@ class LxMaiRecordList extends StatelessWidget {
                     gridDelegate:
                         const SliverGridDelegateWithMaxCrossAxisExtent(
                       maxCrossAxisExtent: 600, // 每个项目的最大宽度
-                      crossAxisSpacing: 16, // 网格之间的横向间距
-                      mainAxisSpacing: 16, // 网格之间的纵向间距
+                      crossAxisSpacing: 8, // 网格之间的横向间距
+                      mainAxisSpacing: 8, // 网格之间的纵向间距
                       childAspectRatio: 1.8,
                     ),
                     padding: const EdgeInsets.all(16),

@@ -48,7 +48,7 @@ class _SongDetailScreenState extends State<SongDetailScreen>
     _scrollController.addListener(() {
       if (!context.mounted) return;
       setState(() {
-        _titleOpacity = (_scrollController.offset / 250).clamp(0.0, 1.0);
+        _titleOpacity = ((_scrollController.offset - 178) / 72).clamp(0.0, 1.0);
       });
     });
     _audioPlayer = AudioPlayer();
@@ -65,7 +65,7 @@ class _SongDetailScreenState extends State<SongDetailScreen>
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    sub1 =_audioPlayer.onPositionChanged.listen((Duration p) {
+    sub1 = _audioPlayer.onPositionChanged.listen((Duration p) {
       if (!context.mounted) return;
       setState(() {
         _currentPosition = p.inSeconds.toDouble();
@@ -204,25 +204,35 @@ class _SongDetailScreenState extends State<SongDetailScreen>
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return [
             SliverAppBar(
+              titleSpacing: 0,
               stretch: true,
               forceElevated: true,
               centerTitle: false,
               title: Opacity(
-                opacity: _titleOpacity,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.song.title,
-                      style: const TextStyle(fontSize: 20),
-                    ),
-                    Text(
-                      widget.song.artist,
-                      style: const TextStyle(fontSize: 12),
-                    )
-                  ],
+                  opacity: _titleOpacity,
+                  child: ListTile(
+            contentPadding: const EdgeInsets.all(10),
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(4), // Rounded corners
+              child: CachedNetworkImage(
+                imageUrl:
+                    'https://assets2.lxns.net/maimai/jacket/${widget.song.id}.png',
+                width: 32,
+                height: 32,
+                fit: BoxFit.cover,
+                fadeInDuration:
+                    const Duration(milliseconds: 500), // Fade-in duration
+                placeholder: (context, url) => Transform.scale(
+                  scale: 0.4,
+                  child: const CircularProgressIndicator(),
                 ),
+                errorWidget: (context, url, error) =>
+                    const Icon(Icons.image_not_supported),
               ),
+            ),
+            title: Text(widget.song.title, maxLines: 1, overflow: TextOverflow.fade,),
+            subtitle: Text(widget.song.artist, maxLines: 1, overflow: TextOverflow.ellipsis,),
+          )),
               expandedHeight: 300.0,
               pinned: true,
               flexibleSpace: FlexibleSpaceBar(
@@ -395,7 +405,7 @@ class _SongDetailScreenState extends State<SongDetailScreen>
                   const SizedBox(height: 16),
                   for (int i = widget.song.difficulties.standard.length - 1;
                       i >= 0;
-                      i --)
+                      i--)
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -412,7 +422,9 @@ class _SongDetailScreenState extends State<SongDetailScreen>
                         songId: widget.song.id,
                       ),
                     ),
-                  for (int i = widget.song.difficulties.dx.length - 1; i >= 0; i --)
+                  for (int i = widget.song.difficulties.dx.length - 1;
+                      i >= 0;
+                      i--)
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -453,11 +465,9 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      child: Material(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        child: _tabBar,
-      ),
+    return Material(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: _tabBar,
     );
   }
 
