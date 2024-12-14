@@ -28,7 +28,7 @@ jobs:
 
     - name: Build iOS App (Unsign)
       run: |
-        flutter build ios --no-codesign
+        flutter build ios --release --no-codesign
 
     - name: Package Unsigned IPA
       run: |
