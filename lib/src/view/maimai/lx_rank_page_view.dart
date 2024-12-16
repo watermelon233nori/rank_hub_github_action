@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:rank_hub/src/pages/player_switch_page.dart';
-import 'package:rank_hub/src/utils/proxy_server.dart';
 import 'package:rank_hub/src/view/maimai/lx_b50_export_view.dart';
 import 'package:rank_hub/src/view/maimai/lx_mai_record_card.dart';
 import 'package:rank_hub/src/view/maimai/lx_record_list_view.dart';
@@ -67,11 +66,12 @@ class MaiRankPage extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              actions: [
+                              actions: const [
                                 IconButton(
-                                    onPressed: () {ProxyServer().startProxyServer();},
-                                    icon: const Icon(Icons.more_vert)),
-                                const SizedBox(width: 8),
+                                    //onPressed: () {ProxyServer().startProxyServer();},
+                                    onPressed: null,
+                                    icon: Icon(Icons.more_vert)),
+                                SizedBox(width: 8),
                               ],
                             ),
                             body: TabBarView(

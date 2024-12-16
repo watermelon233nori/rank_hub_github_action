@@ -25,7 +25,6 @@ class _MainPageState extends State<MainPage> {
     await _channel.invokeMethod('stopTunnel');
   }
 
-
   // 底部导航项列表
   final List<NavigationDestination> _navItems = const [
     NavigationDestination(
@@ -88,23 +87,24 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-
-  // 页面列表
-  final List<Widget> _pages = [
-    Center(
-        child: Column(
-      children: [
-        SizedBox(height: 64,),
-        ElevatedButton(onPressed: startTunnel, child: Text('启动')),
-
-        ElevatedButton(onPressed: stopTunnel, child: Text('关闭')),
-      ],
-    )),
-    RankPage(),
-    WikiPage(),
-    DataSrcPage(),
-    SettingsPage(),
-  ];
+    // 页面列表
+    final List<Widget> pages = [
+      const Center(child:  Text("还没想好这部分要怎么写")),
+      //Center(
+      //  child: Column(
+      //    children: [
+      //      SizedBox(
+      //        height: 64,
+      //      ),
+      //      ElevatedButton(onPressed: startTunnel, child: Text('启动')),
+      //      ElevatedButton(onPressed: stopTunnel, child: Text('关闭')),
+      //  ],
+      //)),
+      const RankPage(),
+      const WikiPage(),
+      const DataSrcPage(),
+      SettingsPage(),
+    ];
     // 设置系统界面样式
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
@@ -121,7 +121,7 @@ class _MainPageState extends State<MainPage> {
       body: PageView(
         controller: _pageController,
         onPageChanged: _onPageChanged,
-        children: _pages,
+        children: pages,
       ),
     );
   }
