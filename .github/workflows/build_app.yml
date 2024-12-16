@@ -49,3 +49,22 @@ jobs:
       with:
         name: Unsigned-iOS-IPA
         path: RankHub.ipa
+  build_android:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: cedvdb/action-flutter-build-android@v1
+        with:
+          keystore-base64: ${{ secrets.ANDROID_RELEASE_KEY }}
+          keystore-password: "${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}"
+          # optionals
+          build-cmd: flutter build apk --release
+          working-directory: ./
+          
+      - name: Archive APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: Android-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
