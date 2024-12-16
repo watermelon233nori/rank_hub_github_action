@@ -15,9 +15,7 @@
 
 待项目重构后，未来有计划打造一个音游查分聚合平台（幻想）。
 
-项目仅对 iOS 平台进行维护，其他平台需要自行处理以便成功构建。（有计划对 Android 平台维护）
-
-你可以在 [这里](https://github.com/qianmo2233/RankHub/actions/workflows/build_app.yml) 下载最新的构建（目前仅 iOS IPA，需自行签名安装）
+你可以在 [这里](https://github.com/qianmo2233/RankHub/actions/workflows/build_app.yml) 下载最新的构建（包括 Android & iOS）（iOS 端需自行签名后安装）
 
 > [!WARNING]
 > 目前项目仍在开发，你可能会看到一些意义不明的按钮，或没有实际功能的界面，无需理会
