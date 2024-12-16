@@ -50,7 +50,7 @@ jobs:
         name: Unsigned-iOS-IPA
         path: RankHub.ipa
   build_android:
-    name: build
+    name: Build Android APK
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
