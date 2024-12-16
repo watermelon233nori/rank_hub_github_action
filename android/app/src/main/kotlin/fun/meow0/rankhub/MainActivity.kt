@@ -1,4 +1,4 @@
-package fun.meow0.rankhub.rank_hub
+package `fun`.meow0.rankhub
 
 import io.flutter.embedding.android.FlutterActivity
 
