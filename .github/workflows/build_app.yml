@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'README.md'
+      - '.github/**'
+      - '.vscode/**'
+      - '.idea/**'
+      - 'test/**'
+      - '.gitignore'
 
 jobs:
   build_ios:
